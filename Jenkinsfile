@@ -1,8 +1,5 @@
 pipeline {
   agent any
-  tools {
-    maven 'Maven 3.9.6'
-  }
   stages {
     stage('Build') {
       steps {
@@ -12,7 +9,7 @@ GIT_SHORT_COMMIT=$(echo $GIT_COMMIT | cut -c 1-7)
 
 #Set the version using Maven
 
-mvn versions: set -DnewVersion="$GIT_SHORT_COMMIT"
+mvn versions:set -DnewVersion="$GIT_SHORT_COMMIT"
 mvn versions:commit'''
       }
     }
@@ -29,5 +26,8 @@ mvn versions:commit'''
       }
     }
 
+  }
+  tools {
+    maven 'Maven 3.9.6'
   }
 }
