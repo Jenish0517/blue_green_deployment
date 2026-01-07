@@ -6,7 +6,7 @@ pipeline {
   stages {
     stage('Build') {
       steps {
-        sh './mvnw clean package -DskipTests'
+        sh 'mvn clean package -DskipTests'
         sh '''#Truncate the GIT_COMMIT to the first 7 characters
 GIT_SHORT_COMMIT=$(echo $GIT_COMMIT | cut -c 1-7)
 
