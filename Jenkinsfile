@@ -5,7 +5,7 @@ pipeline {
       steps {
         sh 'mvn clean package -DskipTests'
         sh '''#Truncate the GIT_COMMIT to the first 7 characters
-GIT_SHORT_COMMIT=$(echo $GIT_COMMIT | cut -c 1-7)
+ GIT_SHORT_COMMIT=$(echo $GIT_COMMIT | cut -c 1-7)
 
 #Set the version using Maven
 
