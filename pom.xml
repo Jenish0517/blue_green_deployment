@@ -24,7 +24,28 @@
         </dependency>
     </dependencies>
 
+    <profiles>
+        <profile>
+            <id>blue</id>
+            <properties>
+                <server.port>8081</server.port>
+                <final.name>calculator-blue</final.name>
+            </properties>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+        </profile>
+        <profile>
+            <id>green</id>
+            <properties>
+                <server.port>8082</server.port>
+                <final.name>calculator-green</final.name>
+            </properties>
+        </profile>
+    </profiles>
+
     <build>
+        <finalName>${final.name}</finalName>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>

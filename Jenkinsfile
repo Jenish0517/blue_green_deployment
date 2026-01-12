@@ -9,39 +9,35 @@ pipeline {
         APP_NAME = "bluegreen-calculator"
         BLUE_CONTAINER = "bluegreen-blue"
         GREEN_CONTAINER = "bluegreen-green"
-        BLUE_PORT = "8082"
-        GREEN_PORT = "8083"
-        NGINX_CONF = "/etc/nginx/conf.d/bluegreen.conf"
+        BLUE_PORT = "8081"
+        GREEN_PORT = "8082"
+        NGINX_CONF = "./nginx/nginx.conf"
     }
 
     stages {
 
         stage('Build App') {
             steps {
-                sh 'mvn clean package -DskipTests'
+                sh 'mvn clean package -P blue'
+                sh 'mvn clean package -P green'
             }
         }
 
-        stage('Build Docker Image') {
+        stage('Build Docker Images') {
             steps {
-                sh '''
-                COMMIT=$(echo $GIT_COMMIT | cut -c1-7)
-                docker build -t $APP_NAME:$COMMIT .
-                '''
+                sh 'docker build -t $APP_NAME:blue --build-arg JAR_FILE=calculator-blue.jar .'
+                sh 'docker build -t $APP_NAME:green --build-arg JAR_FILE=calculator-green.jar .'
             }
         }
 
         stage('Deploy GREEN') {
             steps {
                 sh '''
-                COMMIT=$(echo $GIT_COMMIT | cut -c1-7)
-
                 docker rm -f $GREEN_CONTAINER || true
-
                 docker run -d \
                   --name $GREEN_CONTAINER \
-                  -p $GREEN_PORT:8080 \
-                  $APP_NAME:$COMMIT
+                  -p $GREEN_PORT:8082 \
+                  $APP_NAME:green
                 '''
             }
         }
@@ -58,9 +54,8 @@ pipeline {
         stage('Switch NGINX to GREEN') {
             steps {
                 sh '''
-                sudo sed -i 's/8082/8083/' $NGINX_CONF
-                sudo nginx -t
-                sudo systemctl reload nginx
+                sed -i 's/set $deployment "blue"/set $deployment "green"/' $NGINX_CONF
+                docker exec -it nginx nginx -s reload
                 '''
             }
         }
