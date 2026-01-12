@@ -36,9 +36,10 @@ pipeline {
                 docker rm -f $GREEN_CONTAINER || true
                 docker run -d \
                   --name $GREEN_CONTAINER \
-                  -p $GREEN_PORT:8082 \
+                  -p $GREEN_PORT:8080 \
                   $APP_NAME:green
-                sleep 5
+                sleep 15
+                docker ps -a
                 docker logs $GREEN_CONTAINER
                 '''
             }
