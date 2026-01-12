@@ -7,51 +7,69 @@ pipeline {
 
     environment {
         APP_NAME = "bluegreen-calculator"
-        CONTAINER_NAME = "bluegreen-green"
+        BLUE_CONTAINER = "bluegreen-blue"
+        GREEN_CONTAINER = "bluegreen-green"
+        BLUE_PORT = "8081"
+        GREEN_PORT = "8082"
+        NGINX_CONF = "/etc/nginx/conf.d/bluegreen.conf"
     }
 
     stages {
 
-        stage('Set Version & Build') {
+        stage('Build App') {
+            steps {
+                sh 'mvn clean package -DskipTests'
+            }
+        }
+
+        stage('Build Docker Image') {
             steps {
                 sh '''
-                # Get short Git commit (7 chars)
-                GIT_SHORT_COMMIT=$(echo $GIT_COMMIT | cut -c 1-7)
-                echo "Using version: $GIT_SHORT_COMMIT"
-
-                # Set Maven version
-                mvn versions:set -DnewVersion=$GIT_SHORT_COMMIT
-                mvn versions:commit
-
-                # Build package (skip tests)
-                mvn clean package -DskipTests
+                COMMIT=$(echo $GIT_COMMIT | cut -c1-7)
+                docker build -t $APP_NAME:$COMMIT .
                 '''
             }
         }
 
-        stage('Docker Build') {
+        stage('Deploy GREEN') {
             steps {
                 sh '''
-                GIT_SHORT_COMMIT=$(echo $GIT_COMMIT | cut -c 1-7)
+                COMMIT=$(echo $GIT_COMMIT | cut -c1-7)
 
-                docker build -t $APP_NAME:$GIT_SHORT_COMMIT .
-                '''
-            }
-        }
+                docker rm -f $GREEN_CONTAINER || true
 
-        stage('Deploy') {
-            steps {
-                sh '''
-                GIT_SHORT_COMMIT=$(echo $GIT_COMMIT | cut -c 1-7)
-
-                # Stop and remove old container if exists
-                docker rm -f $CONTAINER_NAME || true
-
-                # Run new container
                 docker run -d \
-                  --name $CONTAINER_NAME \
-                  -p 8082:8080 \
-                  $APP_NAME:$GIT_SHORT_COMMIT
+                  --name $GREEN_CONTAINER \
+                  -p $GREEN_PORT:8080 \
+                  $APP_NAME:$COMMIT
+                '''
+            }
+        }
+
+        stage('Smoke Test GREEN') {
+            steps {
+                sh '''
+                sleep 10
+                curl -f http://localhost:$GREEN_PORT || exit 1
+                '''
+            }
+        }
+
+        stage('Switch NGINX to GREEN') {
+            steps {
+                sh '''
+                sudo sed -i 's/8081/8082/' $NGINX_CONF
+                sudo nginx -t
+                sudo systemctl reload nginx
+                '''
+            }
+        }
+
+        stage('Stop BLUE') {
+            steps {
+                sh '''
+                docker stop $BLUE_CONTAINER || true
+                docker rm $BLUE_CONTAINER || true
                 '''
             }
         }
