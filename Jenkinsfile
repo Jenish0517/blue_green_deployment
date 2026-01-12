@@ -48,7 +48,7 @@ pipeline {
             steps {
                 sh '''
                 sleep 10
-                curl -f http://localhost:$GREEN_PORT || exit 1
+                curl -f http://host.docker.internal:$GREEN_PORT || exit 1
                 '''
             }
         }
