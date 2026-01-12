@@ -19,7 +19,7 @@ pipeline {
         stage('Build App') {
             steps {
                 sh 'mvn clean package -P blue'
-                sh 'mvn clean package -P green'
+                sh 'mvn package -P green'
             }
         }
 
