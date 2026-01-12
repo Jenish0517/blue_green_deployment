@@ -9,8 +9,8 @@ pipeline {
         APP_NAME = "bluegreen-calculator"
         BLUE_CONTAINER = "bluegreen-blue"
         GREEN_CONTAINER = "bluegreen-green"
-        BLUE_PORT = "8081"
-        GREEN_PORT = "8082"
+        BLUE_PORT = "8082"
+        GREEN_PORT = "8083"
         NGINX_CONF = "/etc/nginx/conf.d/bluegreen.conf"
     }
 
@@ -58,7 +58,7 @@ pipeline {
         stage('Switch NGINX to GREEN') {
             steps {
                 sh '''
-                sudo sed -i 's/8081/8082/' $NGINX_CONF
+                sudo sed -i 's/8082/8083/' $NGINX_CONF
                 sudo nginx -t
                 sudo systemctl reload nginx
                 '''
