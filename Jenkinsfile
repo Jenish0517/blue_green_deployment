@@ -11,6 +11,7 @@ pipeline {
         GREEN_CONTAINER = "bluegreen-green"
         BLUE_PORT = "8081"
         GREEN_PORT = "8082"
+        NGINX_CONTAINER = "nginx"
         NGINX_CONF = "./nginx/nginx.conf"
     }
 
@@ -18,8 +19,8 @@ pipeline {
 
         stage('Build App') {
             steps {
-                sh 'mvn clean package -P blue'
-                sh 'mvn package -P green'
+                sh 'mvn clean package -Pblue'
+                sh 'mvn package -Pgreen'
             }
         }
 
@@ -39,7 +40,6 @@ pipeline {
                   -p $GREEN_PORT:8082 \
                   $APP_NAME:green
                 sleep 15
-                docker ps -a
                 docker logs $GREEN_CONTAINER
                 '''
             }
@@ -49,7 +49,7 @@ pipeline {
             steps {
                 sh '''
                 sleep 10
-                curl -f http://localhost:8082 || exit 1
+                curl -f http://localhost:8082
                 '''
             }
         }
@@ -57,8 +57,9 @@ pipeline {
         stage('Switch NGINX to GREEN') {
             steps {
                 sh '''
-                sed -i 's/set $deployment "blue"/set $deployment "green"/' $NGINX_CONF
-                docker exec -it nginx nginx -s reload
+                sed -i 's/set \\$deployment "blue"/set \\$deployment "green"/' $NGINX_CONF
+                docker exec $NGINX_CONTAINER nginx -t
+                docker exec $NGINX_CONTAINER nginx -s reload
                 '''
             }
         }
