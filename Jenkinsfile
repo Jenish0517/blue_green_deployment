@@ -9,8 +9,8 @@ pipeline {
         APP_NAME        = "bluegreen-calculator"
         BLUE_CONTAINER  = "bluegreen-blue"
         GREEN_CONTAINER = "bluegreen-green"
-        BLUE_PORT       = "8081"
-        GREEN_PORT      = "8082"
+        BLUE_PORT       = "8082"
+        GREEN_PORT      = "8083"
         NGINX_CONF      = "./nginx/nginx.conf"
     }
 
@@ -41,7 +41,7 @@ pipeline {
 
                 docker run -d \
                   --name $GREEN_CONTAINER \
-                  -p $GREEN_PORT:8082 \
+                  -p $GREEN_PORT:8083 \
                   $APP_NAME:green
 
                 sleep 15
@@ -55,7 +55,7 @@ pipeline {
             steps {
                 sh '''
                 sleep 10
-                curl -f http://localhost:8082
+                curl -f http://localhost:8083
                 '''
             }
         }

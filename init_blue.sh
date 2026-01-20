@@ -18,7 +18,7 @@ docker rm bluegreen-green || true
 
 # 4. Start Blue Container
 echo "Starting Blue Container..."
-docker run -d --name bluegreen-blue -p 8081:8081 bluegreen-calculator:blue
+docker run -d --name bluegreen-blue -p 8082:8082 bluegreen-calculator:blue
 
 # 5. Wait for Blue to initialize
 echo "Waiting for Blue to be ready..."
@@ -44,6 +44,6 @@ docker run -d \
 
 echo "--------------------------------------------------"
 echo "Blue Deployment Complete!"
-echo "Blue App: http://localhost:8081 (Direct)"
+echo "Blue App: http://localhost:8082 (Direct)"
 echo "Nginx:    http://localhost (Points to Blue)"
 echo "--------------------------------------------------"

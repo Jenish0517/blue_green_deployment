@@ -28,7 +28,7 @@
         <profile>
             <id>blue</id>
             <properties>
-                <server.port>8081</server.port>
+                <server.port>8082</server.port>
                 <final.name>calculator-blue</final.name>
             </properties>
             <activation>
@@ -38,7 +38,7 @@
         <profile>
             <id>green</id>
             <properties>
-                <server.port>8082</server.port>
+                <server.port>8083</server.port>
                 <final.name>calculator-green</final.name>
             </properties>
             <build>
