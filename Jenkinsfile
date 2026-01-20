@@ -66,6 +66,8 @@ pipeline {
                 echo "Switching traffic to GREEN..."
 
                 sed -i 's/set \\$deployment "blue"/set \\$deployment "green"/' $NGINX_CONF
+                
+                sudo cp $NGINX_CONF /etc/nginx/nginx.conf
 
                 sudo nginx -t
                 sudo systemctl reload nginx
