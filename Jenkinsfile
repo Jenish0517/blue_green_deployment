@@ -68,7 +68,10 @@ pipeline {
                 sed -i 's/set \\$deployment "blue"/set \\$deployment "green"/' $NGINX_CONF
                 
                 # Ensure Nginx container is running
-                if ! docker ps -q -f name=bluegreen-nginx; then
+                if [ -z "$(docker ps -q -f name=bluegreen-nginx)" ]; then
+                    echo "Nginx container is not running. Starting it..."
+                    docker rm -f bluegreen-nginx || true
+                    
                     docker run -d \
                       --name bluegreen-nginx \
                       -p 80:80 \
