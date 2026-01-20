@@ -37,7 +37,7 @@ fi
 
 docker run -d \
     --name bluegreen-nginx \
-    -p 80:80 \
+    -p 8090:80 \
     --add-host host.docker.internal:host-gateway \
     -v "$(pwd)/nginx/nginx.conf:/etc/nginx/nginx.conf:ro" \
     nginx
@@ -45,5 +45,5 @@ docker run -d \
 echo "--------------------------------------------------"
 echo "Blue Deployment Complete!"
 echo "Blue App: http://localhost:8082 (Direct)"
-echo "Nginx:    http://localhost (Points to Blue)"
+echo "Nginx:    http://localhost:8090 (Points to Blue)"
 echo "--------------------------------------------------"

@@ -74,7 +74,7 @@ pipeline {
                     
                     docker run -d \
                       --name bluegreen-nginx \
-                      -p 80:80 \
+                      -p 8090:80 \
                       --add-host host.docker.internal:host-gateway \
                       nginx
                 fi
