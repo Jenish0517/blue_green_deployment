@@ -28,22 +28,19 @@ sleep 15
 echo "Configuring Nginx to point to Blue..."
 sed -i 's/set \$deployment "green"/set \$deployment "blue"/' nginx/nginx.conf
 
-# 7. Apply Nginx Configuration
-# Note: This assumes /etc/nginx/nginx.conf is the main config file.
-# We back it up and replace it with our project config.
-echo "Applying Nginx Configuration..."
-if [ -f /etc/nginx/nginx.conf ]; then
-    sudo cp /etc/nginx/nginx.conf /etc/nginx/nginx.conf.bak
+# 7. Start Nginx Container
+echo "Starting Nginx Container..."
+if docker ps -a --format '{{.Names}}' | grep -q "^bluegreen-nginx$"; then
+    echo "Removing existing Nginx container..."
+    docker rm -f bluegreen-nginx
 fi
 
-# Get absolute path to the project's nginx.conf
-PROJECT_NGINX_CONF="$(pwd)/nginx/nginx.conf"
-sudo cp "$PROJECT_NGINX_CONF" /etc/nginx/nginx.conf
-
-# 8. Reload Nginx
-echo "Reloading Nginx..."
-sudo nginx -t
-sudo systemctl reload nginx
+docker run -d \
+    --name bluegreen-nginx \
+    -p 80:80 \
+    --add-host host.docker.internal:host-gateway \
+    -v "$(pwd)/nginx/nginx.conf:/etc/nginx/nginx.conf:ro" \
+    nginx
 
 echo "--------------------------------------------------"
 echo "Blue Deployment Complete!"

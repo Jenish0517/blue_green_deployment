@@ -67,10 +67,18 @@ pipeline {
 
                 sed -i 's/set \\$deployment "blue"/set \\$deployment "green"/' $NGINX_CONF
                 
-                sudo cp $NGINX_CONF /etc/nginx/nginx.conf
+                # Ensure Nginx container is running
+                if ! docker ps -q -f name=bluegreen-nginx; then
+                    docker run -d \
+                      --name bluegreen-nginx \
+                      -p 80:80 \
+                      --add-host host.docker.internal:host-gateway \
+                      nginx
+                fi
 
-                sudo nginx -t
-                sudo systemctl reload nginx
+                # Update config and reload
+                docker cp $NGINX_CONF bluegreen-nginx:/etc/nginx/nginx.conf
+                docker exec bluegreen-nginx nginx -s reload
                 '''
             }
         }
