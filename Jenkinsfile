@@ -85,15 +85,6 @@ pipeline {
                 '''
             }
         }
-
-        stage('Stop BLUE') {
-            steps {
-                sh '''
-                docker stop $BLUE_CONTAINER || true
-                docker rm   $BLUE_CONTAINER || true
-                '''
-            }
-        }
     }
 
     post {
