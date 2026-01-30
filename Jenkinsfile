@@ -85,20 +85,6 @@ pipeline {
                 '''
             }
         }
-
-        stage('Deploy BLUE') {
-            steps {
-                sh '''
-                echo "Deploying BLUE (Dummy)..."
-                docker rm -f $BLUE_CONTAINER || true
-
-                docker run -d \
-                  --name $BLUE_CONTAINER \
-                  -p $BLUE_PORT:8082 \
-                  $APP_NAME:blue
-                '''
-            }
-        }
     }
 
     post {
