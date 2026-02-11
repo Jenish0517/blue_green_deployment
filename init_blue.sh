@@ -23,6 +23,8 @@ docker run -d --name bluegreen-blue -p 8082:8082 bluegreen-calculator:blue
 # 5. Wait for Blue to initialize
 echo "Waiting for Blue to be ready..."
 sleep 15
+echo "Verifying Blue Health..."
+curl -f -s http://localhost:8082/actuator/health | grep '"status":"UP"'
 
 # 6. Configure Nginx to point to Blue
 echo "Configuring Nginx to point to Blue..."

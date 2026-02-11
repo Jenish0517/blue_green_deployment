@@ -51,11 +51,15 @@ pipeline {
             }
         }
 
-        stage('Smoke Test GREEN') {
+        stage('Health Check GREEN') {
             steps {
                 sh '''
-                sleep 10
-                curl -f http://localhost:8083
+                echo "Waiting for GREEN to initialize..."
+                sleep 20
+                
+                echo "Checking Health Endpoint..."
+                # Verify HTTP 200 and Status UP
+                curl -f -s http://localhost:8083/actuator/health | grep '"status":"UP"'
                 '''
             }
         }

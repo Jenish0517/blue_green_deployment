@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project name="maven-antrun-" default="main">
-  <target name="main">
-    <copy file="/home/jenish/Documents/blue_green_deployment/src/main/resources/static/index_green.html" tofile="/home/jenish/Documents/blue_green_deployment/target/classes/static/index.html" overwrite="true" />
-  </target>
-</project>
