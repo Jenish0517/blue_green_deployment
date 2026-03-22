@@ -10,8 +10,13 @@ import java.net.InetSocketAddress;
 
 public class Server {
     public static void main(String[] args) throws IOException {
-        int port = Integer.parseInt(System.getProperty("server.port", "8080"));
-        String staticDir = System.getProperty("static.dir", "static");
+        // Support both -D property and Environment Variable
+        String portStr = System.getProperty("server.port", System.getenv("SERVER_PORT"));
+        if (portStr == null) portStr = "8080";
+        int port = Integer.parseInt(portStr);
+
+        String staticDir = System.getProperty("static.dir", System.getenv("STATIC_DIR"));
+        if (staticDir == null) staticDir = "blue";
         
         HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
         server.createContext("/", new StaticHandler(staticDir));
@@ -22,10 +27,7 @@ public class Server {
 
     static class StaticHandler implements HttpHandler {
         private final String staticDir;
-
-        public StaticHandler(String staticDir) {
-            this.staticDir = staticDir;
-        }
+        public StaticHandler(String staticDir) { this.staticDir = staticDir; }
 
         @Override
         public void handle(HttpExchange exchange) throws IOException {
@@ -35,18 +37,13 @@ public class Server {
             Path filePath = Paths.get(staticDir, path.substring(1));
             if (Files.exists(filePath) && !Files.isDirectory(filePath)) {
                 byte[] content = Files.readAllBytes(filePath);
-                String contentType = getContentType(path);
-                exchange.getResponseHeaders().set("Content-Type", contentType);
+                exchange.getResponseHeaders().set("Content-Type", getContentType(path));
                 exchange.sendResponseHeaders(200, content.length);
-                try (OutputStream os = exchange.getResponseBody()) {
-                    os.write(content);
-                }
+                try (OutputStream os = exchange.getResponseBody()) { os.write(content); }
             } else {
-                String response = "404 Not Found";
-                exchange.sendResponseHeaders(404, response.length());
-                try (OutputStream os = exchange.getResponseBody()) {
-                    os.write(response.getBytes());
-                }
+                String res = "404 Not Found";
+                exchange.sendResponseHeaders(404, res.length());
+                try (OutputStream os = exchange.getResponseBody()) { os.write(res.getBytes()); }
             }
         }
 

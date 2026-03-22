@@ -2,82 +2,45 @@ pipeline {
     agent any
 
     environment {
-        APP_NAME        = "bluegreen-calculator"
+        IMAGE_NAME      = "bluegreen-calculator"
         BLUE_CONTAINER  = "bluegreen-blue"
         GREEN_CONTAINER = "bluegreen-green"
-        BLUE_PORT       = "8082"
-        GREEN_PORT      = "8083"
+        NGINX_CONTAINER = "bluegreen-nginx"
         NGINX_CONF      = "./nginx/nginx.conf"
     }
 
     stages {
-        stage('Build Java App') {
+        stage('Build Image') {
             steps {
-                sh 'javac Server.java'
+                // Build inside Docker so we don't need Java on the Jenkins host
+                sh "docker build -t ${IMAGE_NAME} ."
             }
         }
 
-        stage('Build Docker Images') {
+        stage('Deploy Containers') {
             steps {
-                sh '''
-                docker build -t $APP_NAME:latest .
-                '''
-            }
-        }
+                sh """
+                # 1. Clean up old containers
+                docker rm -f ${BLUE_CONTAINER} ${GREEN_CONTAINER} ${NGINX_CONTAINER} || true
 
-        stage('Deploy BLUE') {
-            steps {
-                sh '''
-                docker rm -f $BLUE_CONTAINER || true
-                docker run -d \
-                  --name $BLUE_CONTAINER \
-                  -p $BLUE_PORT:8082 \
-                  $APP_NAME:latest \
-                  java -Dserver.port=8082 -Dstatic.dir=blue Server
-                '''
-            }
-        }
+                # 2. Start BLUE (Port 8082)
+                docker run -d --name ${BLUE_CONTAINER} -p 8082:8082 -e SERVER_PORT=8082 -e STATIC_DIR=blue ${IMAGE_NAME}
 
-        stage('Deploy GREEN') {
-            steps {
-                sh '''
-                docker rm -f $GREEN_CONTAINER || true
-                docker run -d \
-                  --name $GREEN_CONTAINER \
-                  -p $GREEN_PORT:8083 \
-                  $APP_NAME:latest \
-                  java -Dserver.port=8083 -Dstatic.dir=green Server
-                '''
+                # 3. Start GREEN (Port 8083)
+                docker run -d --name ${GREEN_CONTAINER} -p 8083:8083 -e SERVER_PORT=8083 -e STATIC_DIR=green ${IMAGE_NAME}
+
+                # 4. Start NGINX
+                docker run -d --name ${NGINX_CONTAINER} -p 8090:80 \
+                  --add-host host.docker.internal:host-gateway \
+                  -v \$(pwd)/nginx/nginx.conf:/etc/nginx/nginx.conf:ro \
+                  nginx
+                """
             }
         }
 
         stage('Health Check') {
             steps {
-                sh '''
-                echo "Waiting for containers to initialize..."
-                sleep 5
-                curl -f -s http://localhost:8082/ || exit 1
-                curl -f -s http://localhost:8083/ || exit 1
-                '''
-            }
-        }
-
-        stage('Configure Nginx') {
-            steps {
-                sh '''
-                if [ -z "$(docker ps -q -f name=bluegreen-nginx)" ]; then
-                    docker rm -f bluegreen-nginx || true
-                    docker run -d \
-                      --name bluegreen-nginx \
-                      -p 8090:80 \
-                      --add-host host.docker.internal:host-gateway \
-                      -v $(pwd)/nginx/nginx.conf:/etc/nginx/nginx.conf:ro \
-                      nginx
-                else
-                    docker cp $NGINX_CONF bluegreen-nginx:/etc/nginx/nginx.conf
-                    docker exec bluegreen-nginx nginx -s reload
-                fi
-                '''
+                sh "sleep 5 && curl -f http://localhost:8082/ && curl -f http://localhost:8083/"
             }
         }
     }
