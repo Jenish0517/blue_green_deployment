@@ -1,14 +1,17 @@
 version: "3.8"
 
 services:
-
   blue:
     build: ./blue
     container_name: blue-app
+    networks:
+      - calc-net
 
   green:
     build: ./green
     container_name: green-app
+    networks:
+      - calc-net
 
   nginx:
     image: nginx:latest
@@ -20,6 +23,8 @@ services:
     depends_on:
       - blue
       - green
+    networks:
+      - calc-net
 
   jenkins:
     build: ./jenkins
@@ -27,8 +32,14 @@ services:
     ports:
       - "8080:8080"
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock   # 🔥 important
+      - /var/run/docker.sock:/var/run/docker.sock
       - jenkins_home:/var/jenkins_home
+    networks:
+      - calc-net
+
+networks:
+  calc-net:
+    driver: bridge
 
 volumes:
   jenkins_home:
