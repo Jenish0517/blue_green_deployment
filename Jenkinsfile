@@ -3,12 +3,6 @@ pipeline {
 
     stages {
 
-        stage('Clone Repo') {
-            steps {
-                git 'https://github.com/your-username/calculator-blue-green.git'
-            }
-        }
-
         stage('Build Green Image') {
             steps {
                 sh 'docker build -t green-app ./green'
