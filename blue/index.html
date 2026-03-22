@@ -1,32 +1,112 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Blue Calculator</title>
-    <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blue Calculator v1</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f2f5;
+        }
+        .calculator {
+            background-color: #fff;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 350px;
+            padding: 20px;
+            text-align: center;
+        }
+        .header {
+            color: #007bff;
+            margin-bottom: 20px;
+        }
+        #display {
+            width: 100%;
+            height: 60px;
+            font-size: 2rem;
+            text-align: right;
+            margin-bottom: 20px;
+            padding: 10px;
+            box-sizing: border-box;
+            border: 2px solid #e1e4e8;
+            border-radius: 10px;
+            background-color: #f8f9fa;
+        }
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+        button {
+            height: 60px;
+            font-size: 1.2rem;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+            background-color: #e9ecef;
+        }
+        button:hover { background-color: #dee2e6; }
+        button:active { transform: scale(0.95); }
+        .operator { background-color: #007bff; color: white; }
+        .operator:hover { background-color: #0056b3; }
+        .equals { grid-column: span 2; background-color: #28a745; color: white; }
+        .equals:hover { background-color: #218838; }
+        .clear { grid-column: span 2; background-color: #dc3545; color: white; }
+        .clear:hover { background-color: #c82333; }
+    </style>
 </head>
 <body>
-<div class="calculator">
-    <h2>🔵 Blue Calculator</h2>
-    <input type="text" id="result" disabled>
-    <div class="buttons">
-        <button onclick="clearResult()">C</button>
-        <button onclick="append('1')">1</button>
-        <button onclick="append('2')">2</button>
-        <button onclick="append('3')">3</button>
-        <button onclick="append('+')">+</button>
-        <button onclick="append('4')">4</button>
-        <button onclick="append('5')">5</button>
-        <button onclick="append('6')">6</button>
-        <button onclick="append('-')">-</button>
-        <button onclick="append('7')">7</button>
-        <button onclick="append('8')">8</button>
-        <button onclick="append('9')">9</button>
-        <button onclick="append('*')">*</button>
-        <button onclick="append('0')">0</button>
-        <button onclick="calculate()">=</button>
-        <button onclick="append('/')">/</button>
+    <div class="calculator">
+        <h2 class="header">🔵 Blue Calculator v1</h2>
+        <input type="text" id="display" disabled value="0">
+        <div class="buttons">
+            <button class="clear" onclick="clearDisplay()">C</button>
+            <button class="operator" onclick="appendOperator('/')">/</button>
+            <button class="operator" onclick="appendOperator('*')">×</button>
+            <button onclick="appendNumber('7')">7</button>
+            <button onclick="appendNumber('8')">8</button>
+            <button onclick="appendNumber('9')">9</button>
+            <button class="operator" onclick="appendOperator('-')">-</button>
+            <button onclick="appendNumber('4')">4</button>
+            <button onclick="appendNumber('5')">5</button>
+            <button onclick="appendNumber('6')">6</button>
+            <button class="operator" onclick="appendOperator('+')">+</button>
+            <button onclick="appendNumber('1')">1</button>
+            <button onclick="appendNumber('2')">2</button>
+            <button onclick="appendNumber('3')">3</button>
+            <button onclick="calculate()">=</button>
+            <button onclick="appendNumber('0')">0</button>
+            <button onclick="appendNumber('.')">.</button>
+            <button class="equals" onclick="calculate()" style="display:none;">=</button>
+        </div>
     </div>
-</div>
-<script src="script.js"></script>
+    <script>
+        let display = document.getElementById('display');
+        function appendNumber(num) {
+            if (display.value === '0') display.value = num;
+            else display.value += num;
+        }
+        function appendOperator(op) {
+            display.value += op;
+        }
+        function clearDisplay() {
+            display.value = '0';
+        }
+        function calculate() {
+            try {
+                display.value = eval(display.value);
+            } catch {
+                display.value = 'Error';
+            }
+        }
+    </script>
 </body>
 </html>
