@@ -9,10 +9,10 @@ COPY . .
 RUN javac Server.java
 
 # Define defaults but allow override
-ENV SERVER_PORT=8080
+ENV SERVER_PORT=80
 ENV STATIC_DIR=blue
 
-EXPOSE 8080 8082 8083
+EXPOSE 80
 
 # Simple run command
 CMD java Server

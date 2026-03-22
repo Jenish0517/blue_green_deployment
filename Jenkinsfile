@@ -1,46 +1,35 @@
 pipeline {
     agent any
 
-    environment {
-        IMAGE_NAME      = "bluegreen-calculator"
-        BLUE_CONTAINER  = "bluegreen-blue"
-        GREEN_CONTAINER = "bluegreen-green"
-        NGINX_CONTAINER = "bluegreen-nginx"
-        NGINX_CONF      = "./nginx/nginx.conf"
-    }
-
     stages {
-        stage('Build Image') {
+        stage('Build Green Image') {
             steps {
-                // Build inside Docker so we don't need Java on the Jenkins host
-                sh "docker build -t ${IMAGE_NAME} ."
+                sh 'docker build -t green-app ./green'
             }
         }
 
-        stage('Deploy Containers') {
+        stage('Deploy Green') {
             steps {
-                sh """
-                # 1. Clean up old containers
-                docker rm -f ${BLUE_CONTAINER} ${GREEN_CONTAINER} ${NGINX_CONTAINER} || true
-
-                # 2. Start BLUE (Port 8082)
-                docker run -d --name ${BLUE_CONTAINER} -p 8082:8082 -e SERVER_PORT=8082 -e STATIC_DIR=blue ${IMAGE_NAME}
-
-                # 3. Start GREEN (Port 8083)
-                docker run -d --name ${GREEN_CONTAINER} -p 8083:8083 -e SERVER_PORT=8083 -e STATIC_DIR=green ${IMAGE_NAME}
-
-                # 4. Start NGINX
-                docker run -d --name ${NGINX_CONTAINER} -p 8090:80 \
-                  --add-host host.docker.internal:host-gateway \
-                  -v \$(pwd)/nginx/nginx.conf:/etc/nginx/nginx.conf:ro \
-                  nginx
-                """
+                sh '''
+                docker rm -f green-app || true
+                docker run -d --name green-app green-app
+                '''
             }
         }
 
-        stage('Health Check') {
+        stage('Switch Traffic to Green') {
             steps {
-                sh "sleep 5 && curl -f http://localhost:8082/ && curl -f http://localhost:8083/"
+                sh '''
+                # This sed command assumes the Nginx config has "server blue:80;"
+                sed -i 's/server blue:80;/# server blue:80;\\n        server green:80;/g' nginx/nginx.conf
+                docker exec nginx-lb nginx -s reload
+                '''
+            }
+        }
+
+        stage('Done') {
+            steps {
+                echo "Deployment to GREEN successful"
             }
         }
     }
