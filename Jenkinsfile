@@ -12,8 +12,8 @@ pipeline {
             steps {
                 sh '''
                 docker rm -f green-app || true
-                # Ensure the container is on the same network as Nginx
-                docker run -d --name green-app --network blue-green-deployment_calc-net green-app
+                # Connect to the exact network name: blue-green-net
+                docker run -d --name green-app --network blue-green-net green-app
                 '''
             }
         }

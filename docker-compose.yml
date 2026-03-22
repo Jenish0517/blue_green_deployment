@@ -5,13 +5,13 @@ services:
     build: ./blue
     container_name: blue-app
     networks:
-      - calc-net
+      - blue-green-net
 
   green:
     build: ./green
     container_name: green-app
     networks:
-      - calc-net
+      - blue-green-net
 
   nginx:
     image: nginx:latest
@@ -24,7 +24,7 @@ services:
       - blue
       - green
     networks:
-      - calc-net
+      - blue-green-net
 
   jenkins:
     build: ./jenkins
@@ -35,11 +35,11 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - jenkins_home:/var/jenkins_home
     networks:
-      - calc-net
+      - blue-green-net
 
 networks:
-  calc-net:
-    driver: bridge
+  blue-green-net:
+    external: true
 
 volumes:
   jenkins_home:
