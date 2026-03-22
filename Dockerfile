@@ -1,11 +1,16 @@
-FROM eclipse-temurin:17-jdk-jammy
-
+# Build stage
+FROM openjdk:21-slim AS build
 WORKDIR /app
+COPY Server.java .
+RUN javac Server.java
 
-ARG JAR_FILE
+# Runtime stage
+FROM openjdk:21-slim
+WORKDIR /app
+COPY --from=build /app/*.class .
+COPY blue/ ./blue/
+COPY green/ ./green/
 
-COPY target/${JAR_FILE} app.jar
-
-EXPOSE 8082
-
-ENTRYPOINT ["java","-jar","app.jar"]
+EXPOSE 8080
+# Default command, port and static dir will be passed via docker run
+CMD ["java", "-Dserver.port=8080", "-Dstatic.dir=blue", "Server"]
