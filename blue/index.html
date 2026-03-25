@@ -3,110 +3,94 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blue Calculator v1</title>
+    <title>Deep Blue Calculator</title>
     <style>
+        * { box-sizing: border-box; transition: all 0.2s ease; }
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
-            margin: 0;
-            background-color: #f0f2f5;
+            background-color: #001220; /* Deepest Blue */
+            font-family: 'Segoe UI', Roboto, sans-serif;
         }
         .calculator {
-            background-color: #fff;
-            border-radius: 20px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            background-color: #002b4e;
             width: 100%;
-            max-width: 350px;
-            padding: 20px;
-            text-align: center;
+            max-width: 380px;
+            padding: 30px;
+            border-radius: 40px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+            border: 1px solid #004a87;
         }
-        .header {
-            color: #007bff;
-            margin-bottom: 20px;
-        }
+        h2 { color: #80caff; text-align: center; margin-top: 0; font-weight: 300; letter-spacing: 2px; }
         #display {
             width: 100%;
-            height: 60px;
-            font-size: 2rem;
+            height: 80px;
+            background: #001a30;
+            border: 2px solid #004a87;
+            border-radius: 20px;
+            margin-bottom: 25px;
+            color: #ffffff;
+            font-size: 2.5rem;
             text-align: right;
-            margin-bottom: 20px;
-            padding: 10px;
-            box-sizing: border-box;
-            border: 2px solid #e1e4e8;
-            border-radius: 10px;
-            background-color: #f8f9fa;
+            padding: 20px;
+            box-shadow: inset 0 4px 10px rgba(0,0,0,0.3);
         }
-        .buttons {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
-        }
+        .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; }
         button {
-            height: 60px;
-            font-size: 1.2rem;
+            height: 70px;
+            border-radius: 20px;
             border: none;
-            border-radius: 10px;
             cursor: pointer;
-            transition: background-color 0.2s, transform 0.1s;
-            background-color: #e9ecef;
+            font-size: 1.4rem;
+            font-weight: 600;
+            background-color: #004a87;
+            color: #ffffff;
         }
-        button:hover { background-color: #dee2e6; }
+        button:hover { background-color: #0066b8; transform: translateY(-3px); }
         button:active { transform: scale(0.95); }
-        .operator { background-color: #007bff; color: white; }
-        .operator:hover { background-color: #0056b3; }
-        .equals { grid-column: span 2; background-color: #28a745; color: white; }
-        .equals:hover { background-color: #218838; }
-        .clear { grid-column: span 2; background-color: #dc3545; color: white; }
-        .clear:hover { background-color: #c82333; }
+        
+        .op { background-color: #007bff; color: white; }
+        .clear { grid-column: span 2; background-color: #001a30; color: #80caff; border: 1px solid #004a87; }
+        .equal { grid-column: span 2; background-color: #00d2ff; color: #002b4e; }
+        .equal:hover { background-color: #ffffff; }
+
+        @media (max-width: 400px) {
+            .calculator { padding: 20px; border-radius: 0; height: 100vh; max-width: 100%; display: flex; flex-direction: column; justify-content: center; }
+        }
     </style>
 </head>
 <body>
     <div class="calculator">
-        <h2 class="header">🔵 Blue Calculator v1</h2>
+        <h2>BLUE UI</h2>
         <input type="text" id="display" disabled value="0">
-        <div class="buttons">
-            <button class="clear" onclick="clearDisplay()">C</button>
-            <button class="operator" onclick="appendOperator('/')">/</button>
-            <button class="operator" onclick="appendOperator('*')">×</button>
-            <button onclick="appendNumber('7')">7</button>
-            <button onclick="appendNumber('8')">8</button>
-            <button onclick="appendNumber('9')">9</button>
-            <button class="operator" onclick="appendOperator('-')">-</button>
-            <button onclick="appendNumber('4')">4</button>
-            <button onclick="appendNumber('5')">5</button>
-            <button onclick="appendNumber('6')">6</button>
-            <button class="operator" onclick="appendOperator('+')">+</button>
-            <button onclick="appendNumber('1')">1</button>
-            <button onclick="appendNumber('2')">2</button>
-            <button onclick="appendNumber('3')">3</button>
-            <button onclick="calculate()">=</button>
-            <button onclick="appendNumber('0')">0</button>
-            <button onclick="appendNumber('.')">.</button>
-            <button class="equals" onclick="calculate()" style="display:none;">=</button>
+        <div class="grid">
+            <button class="clear" onclick="clearD()">CLEAR</button>
+            <button class="op" onclick="add('/')">÷</button>
+            <button class="op" onclick="add('*')">×</button>
+            <button onclick="add('7')">7</button>
+            <button onclick="add('8')">8</button>
+            <button onclick="add('9')">9</button>
+            <button class="op" onclick="add('-')">-</button>
+            <button onclick="add('4')">4</button>
+            <button onclick="add('5')">5</button>
+            <button onclick="add('6')">6</button>
+            <button class="op" onclick="add('+')">+</button>
+            <button onclick="add('1')">1</button>
+            <button onclick="add('2')">2</button>
+            <button onclick="add('3')">3</button>
+            <button onclick="add('.')">.</button>
+            <button onclick="add('0')">0</button>
+            <button class="equal" onclick="calc()">=</button>
         </div>
     </div>
     <script>
-        let display = document.getElementById('display');
-        function appendNumber(num) {
-            if (display.value === '0') display.value = num;
-            else display.value += num;
-        }
-        function appendOperator(op) {
-            display.value += op;
-        }
-        function clearDisplay() {
-            display.value = '0';
-        }
-        function calculate() {
-            try {
-                display.value = eval(display.value);
-            } catch {
-                display.value = 'Error';
-            }
-        }
+        let d = document.getElementById('display');
+        function add(v) { (d.value === '0' && v !== '.') ? d.value = v : d.value += v; }
+        function clearD() { d.value = '0'; }
+        function calc() { try { d.value = eval(d.value) || '0'; } catch { d.value = 'Error'; } }
     </script>
 </body>
 </html>
