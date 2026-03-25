@@ -4,7 +4,11 @@ pipeline {
     stages {
         stage('Init Infrastructure') {
             steps {
-                sh 'docker-compose up -d --build'
+                sh '''
+                # Remove existing containers to prevent naming conflicts
+                docker rm -f blue-app green-app nginx-lb || true
+                docker-compose up -d --build
+                '''
             }
         }
 
