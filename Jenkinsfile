@@ -3,25 +3,35 @@ pipeline {
 
     stages {
 
-        stage('Start Blue Environment') {
+        stage('Cleanup') {
             steps {
-                sh 'docker-compose up -d --build'
+                sh 'docker compose down || true'
             }
         }
 
-        stage('Deploy Green Version') {
+        stage('Start Application (Blue Live)') {
             steps {
-                sh 'docker-compose build green'
-                sh 'docker-compose up -d green'
+                sh 'docker compose up -d --build'
             }
         }
 
-        stage('Switch Traffic to Green') {
+        stage('Wait Before Switch') {
             steps {
-                sh '''
-                sed -i 's/server blue:80;/# server blue:80;\\n        server green:80;/g' nginx/nginx.conf
-                docker exec nginx-lb nginx -s reload
-                '''
+                echo "Waiting 10 seconds... Blue is live now"
+                sleep 10
+            }
+        }
+
+        stage('Deploy Green') {
+            steps {
+                sh 'docker compose build green'
+                sh 'docker compose up -d green'
+            }
+        }
+
+        stage('Switch Traffic') {
+            steps {
+                sh './scripts/switch_to_green.sh'
             }
         }
     }
