@@ -15,10 +15,9 @@ pipeline {
             }
         }
 
-        stage('Wait Before Switch') {
+        stage('Pause for Demo (Blue Live)') {
             steps {
-                echo "Waiting 10 seconds... Blue is live now"
-                sleep 10
+                input message: '🔵 Blue is live! Check http://localhost. Click "Proceed" to switch to Green.'
             }
         }
 
@@ -29,7 +28,7 @@ pipeline {
             }
         }
 
-        stage('Switch Traffic') {
+        stage('Switch Traffic to Green') {
             steps {
                 sh './scripts/switch_to_green.sh'
             }
