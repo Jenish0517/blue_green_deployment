@@ -14,12 +14,10 @@ services:
       - blue-green-net
 
   nginx:
-    image: nginx:latest
+    build: ./nginx
     container_name: nginx-lb
     ports:
       - "80:80"
-    volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
     depends_on:
       - blue
       - green

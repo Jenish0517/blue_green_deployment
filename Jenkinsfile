@@ -21,11 +21,12 @@ pipeline {
         stage('Switch Traffic to Green') {
             steps {
                 sh '''
-                # 1. Update the config on disk
-                sed -i 's/server blue-app:80;/# server blue-app:80;\\n        server green-app:80;/g' nginx/nginx.conf
+                # 1. Update the config on disk in the workspace
+                sed -i 's|server blue-app:80;|# server blue-app:80;\\n        server green-app:80;|g' nginx/nginx.conf
                 
                 # 2. Sync the config into the Nginx container
-                docker cp nginx/nginx.conf nginx-lb:/etc/nginx/nginx.conf
+                # We use cat | docker exec to avoid 'device or resource busy' error on bind mounts
+                cat nginx/nginx.conf | docker exec -i nginx-lb sh -c 'cat > /etc/nginx/nginx.conf'
                 
                 # 3. Reload Nginx
                 docker exec nginx-lb nginx -s reload
