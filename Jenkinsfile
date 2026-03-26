@@ -1,4 +1,4 @@
-pipeline {
+lpipeline {
     agent any
 
     stages {
@@ -28,10 +28,5 @@ pipeline {
             }
         }
 
-        stage('Switch Traffic to Green') {
-            steps {
-                sh './scripts/switch_to_green.sh'
-            }
-        }
     }
 }
