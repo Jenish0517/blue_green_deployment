@@ -27,6 +27,12 @@ lpipeline {
                 sh 'docker compose up -d green'
             }
         }
+        
+        stage('Switch Traffic to Green') {
+            steps {
+                sh './scripts/switch_to_green.sh'
+            }
+        }
 
     }
 }
