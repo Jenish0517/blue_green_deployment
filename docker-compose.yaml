@@ -4,13 +4,13 @@ services:
     build: ./blue
     container_name: blue-app
     ports:
-      - "8081:80"   # 🔵 Blue exposed
+      - "8081:80"  
 
   green:
     build: ./green
     container_name: green-app
     ports:
-      - "8082:80"   # 🟢 Green exposed
+      - "8082:80"   
 
   nginx:
     image: nginx:latest
