@@ -9,15 +9,15 @@ pipeline {
             }
         }
 
-        stage('Start Application (Blue Live)') {
+        stage('Start Blue') {
             steps {
                 sh 'docker compose up -d --build'
             }
         }
 
-        stage('Pause for Demo (Blue Live)') {
+        stage('Pause') {
             steps {
-                input message: '🔵 Blue is live! Check http://localhost. Click "Proceed" to switch to Green.'
+                input message: '🔵 Blue is live. Proceed to deploy Green.'
             }
         }
 
@@ -28,10 +28,24 @@ pipeline {
             }
         }
 
+        stage('Health Check Green') {
+            steps {
+                sh './scripts/health_check.sh'
+            }
+        }
+
         stage('Switch Traffic to Green') {
             steps {
                 sh './scripts/switch_to_green.sh'
             }
+        }
+    }
+
+    post {
+        failure {
+            echo "Rollback triggered..."
+
+            sh './scripts/switch_to_blue.sh'
         }
     }
 }
