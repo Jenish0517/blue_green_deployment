@@ -5,7 +5,7 @@ echo "Checking Green environment health..."
 # Try 5 times
 for i in {1..5}
 do
-    STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://green-app)
+    STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8082)
 
     if [ "$STATUS" -eq 200 ]; then
         echo "Green is healthy ✅"
