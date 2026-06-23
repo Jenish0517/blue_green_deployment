@@ -1,0 +1,53 @@
+name: Blue-Green Deployment
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Cleanup
+        run: |
+          docker compose down || true
+
+      - name: Start Blue
+        run: |
+          docker compose up -d --build
+
+      - name: Health Check Blue
+        run: |
+          ./scripts/health_check.sh
+
+      - name: Pause Before Green Deployment
+        uses: trstringer/manual-approval@v1
+        with:
+          secret: ${{ github.TOKEN }}
+          approvers: your-github-username
+          minimum-approvals: 1
+          issue-title: "Approve Green Deployment"
+
+      - name: Deploy Green
+        run: |
+          docker compose build green
+          docker compose up -d green
+
+      - name: Health Check Green
+        run: |
+          ./scripts/health_check.sh
+
+      - name: Switch Traffic to Green
+        run: |
+          ./scripts/switch_to_green.sh
+
+      - name: Rollback to Blue
+        if: failure()
+        run: |
+          echo "Rollback triggered..."
+          ./scripts/switch_to_blue.sh
