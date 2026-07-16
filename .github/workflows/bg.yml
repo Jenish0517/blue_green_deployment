@@ -8,9 +8,6 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    permissions:
-      issues: write
-      contents: read
 
     steps:
       - name: Checkout Code
@@ -23,14 +20,6 @@ jobs:
       - name: Start Blue
         run: |
           docker compose up -d --build
-
-      - name: Pause Before Green Deployment
-        uses: trstringer/manual-approval@v1
-        with:
-          secret: ${{ github.TOKEN }}
-          approvers: Jenish0517
-          minimum-approvals: 1
-          issue-title: "Approve Green Deployment"
 
       - name: Deploy Green
         run: |
