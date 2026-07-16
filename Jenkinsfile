@@ -43,7 +43,6 @@ pipeline {
         stage('Down Extra Containers') {
             steps {
                 sh 'docker compose stop blue'
-                sh 'docker compose stop green'
             }
         }
     }
